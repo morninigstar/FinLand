@@ -1,50 +1,87 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity"
+    tools:context=".ui.MainActivity"
     android:background="@drawable/background_gradient">
 
-    <TextView
-        android:id="@+id/textView"
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/mainToolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        app:titleTextColor="@color/md_white_1000">
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="32dp"
         android:layout_marginBottom="8dp"
-        android:text="Tap to Upload from: "
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:textSize="22sp"
+        app:cardBackgroundColor="@color/colorPrimaryDark"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.213" />
+        app:layout_constraintVertical_bias="0.185">
 
-    <com.ramotion.circlemenu.CircleMenuView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/uploadFromGallery"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_upload" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="10dp"
+            android:text="Upload from gallery"
+            android:textAlignment="center"
+            android:textColor="@color/secondaryColor"
+            android:textSize="18sp" />
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
         android:layout_marginBottom="8dp"
-        app:button_colors="@array/colors"
-        app:button_icons="@array/icons"
-        app:distance="80dp"
-        app:duration_close="300"
-        app:duration_open="300"
-        app:duration_ring="400"
-        app:icon_close="@drawable/ic_close_black_24dp"
-        app:icon_menu="@drawable/ic_menu_black_24dp"
+        app:cardBackgroundColor="@color/colorPrimaryDark"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/cardView"
+        app:layout_constraintVertical_bias="0.289">
 
-    </com.ramotion.circlemenu.CircleMenuView>
-</android.support.constraint.ConstraintLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/uploadFromDrive"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_drive" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="10dp"
+            android:text="Upload from Google Drive"
+            android:textAlignment="center"
+            android:textColor="@color/secondaryColor"
+            android:textSize="18sp" />
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
