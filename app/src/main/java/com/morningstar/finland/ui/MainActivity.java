@@ -32,6 +32,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.snackbar.Snackbar;
 import com.morningstar.finland.R;
 import com.morningstar.finland.utility.DrawerUtils;
 
@@ -47,6 +48,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     TextView prediction, probability;
     CardView cardView;
     CardView output;
+    ConstraintLayout constraintLayout;
 
     private final String URL_POST_IMAGE = "http://192.168.0.101:5000/upload";
     private final int REQUEST_CODE_GALLERY = 1;
@@ -71,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         toolbar = findViewById(R.id.mainToolbar);
-        toolbar.setTitle("Dashboard");
+        toolbar.setTitle("FinLand");
         toolbar.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         DrawerUtils.getDrawer(this, toolbar);
 
@@ -81,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         probability = findViewById(R.id.probability);
         cardView = findViewById(R.id.cardView);
         output = findViewById(R.id.output);
+        constraintLayout = findViewById(R.id.rootLayout);
 
         uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,16 +137,19 @@ public class MainActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(MainActivity.this, "hoyeche", Toast.LENGTH_SHORT).show();
                         try {
                             JSONObject jsonResponse = new JSONObject(response);
                             String probab = jsonResponse.getString("probability");
                             String landType = jsonResponse.getString("land-type");
 
-                            prediction.setText(landType);
-                            probability.setText(probab);
-                            uploadImage.setText("Upload New Image");
-                            output.setVisibility(View.VISIBLE);
+                            if (probab.compareTo("null") == 0) {
+                                showSnackBar();
+                            } else {
+                                prediction.setText(landType);
+                                probability.setText(probab);
+                                uploadImage.setText("Upload New Image");
+                                output.setVisibility(View.VISIBLE);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -152,17 +159,11 @@ public class MainActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, "Failed to fetch results", Toast.LENGTH_SHORT).show();
-
-                        uploadImage.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_try_again, 0, 0, 0);
-                        uploadImage.setText("Try Again");
                         output.setVisibility(View.INVISIBLE);
-                        uploadImage.setBackgroundResource(R.drawable.background_error);
-                        // change button listener
                         pDialog.hide();
+                        showSnackBar();
                     }
-                })
-        {
+                }) {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
@@ -172,6 +173,19 @@ public class MainActivity extends AppCompatActivity {
         };
 
         queue.add(stringRequest);
+    }
+
+    public void showSnackBar() {
+        Snackbar snackbar = Snackbar
+                .make(constraintLayout, "Failed to fetch prediction", Snackbar.LENGTH_LONG)
+                .setAction("RETRY", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        sendRequest();
+                    }
+                })
+                .setActionTextColor(Color.WHITE);
+        snackbar.show();
     }
 
     @Override
