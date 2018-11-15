@@ -54,8 +54,10 @@
                 android:layout_marginLeft="35dp"
                 android:layout_marginRight="35dp"
                 android:layout_marginBottom="5dp"
-                android:layout_marginTop="5dp"
-                android:drawableStart="@drawable/ic_upload"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/background_normal"
+                android:elevation="@dimen/material_drawer_item_primary"
+                android:drawableStart="@drawable/ic_file_upload"
                 android:text="upload image" />
         </LinearLayout>
 
@@ -68,10 +70,16 @@
         android:layout_marginBottom="8dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="10dp"
+        android:id="@+id/output"
+        android:visibility="invisible"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/cardView"
         app:layout_constraintStart_toStartOf="@+id/cardView"
-        app:layout_constraintTop_toBottomOf="@+id/cardView" >
+        app:layout_constraintTop_toBottomOf="@+id/cardView"
+        app:layout_constraintVertical_bias="0.19">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -102,8 +110,8 @@
                 android:layout_height="0dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:textColor="#101010"
                 android:gravity="center_vertical"
+                android:textColor="#101010"
                 app:layout_constraintBottom_toBottomOf="@+id/textView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView"

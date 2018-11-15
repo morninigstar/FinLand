@@ -13,7 +13,9 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -44,6 +46,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -55,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     ImageView image;
     private Bitmap bitmap;
     TextView prediction, probability;
+    CardView cardView;
+    CardView output;
 
     private final String URL_POST_IMAGE = "http://192.168.0.101:5000/upload";
     private final int REQUEST_CODE_GALLERY = 1;
@@ -74,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
         image = findViewById(R.id.image);
         prediction = findViewById(R.id.prediction);
         probability = findViewById(R.id.probability);
+        cardView = findViewById(R.id.cardView);
+        output = findViewById(R.id.output);
 
         uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,24 +139,25 @@ public class MainActivity extends AppCompatActivity {
                             String probab = jsonResponse.getString("probability");
                             String landType = jsonResponse.getString("land-type");
 
-                            Toast.makeText(MainActivity.this, probab + landType, Toast.LENGTH_SHORT).show();
-
                             prediction.setText(landType);
                             probability.setText(probab);
-                            uploadImage.setText("Upload Another Image");
+                            uploadImage.setText("Upload New Image");
+                            output.setVisibility(View.VISIBLE);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        // update card view with values
-                        // change button to upload another image
                         pDialog.hide();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, "error", Toast.LENGTH_SHORT).show();
-                        // change button to try again
+                        Toast.makeText(MainActivity.this, "Failed to fetch results", Toast.LENGTH_SHORT).show();
+
+                        uploadImage.setCompoundDrawablesRelativeWithIntrinsicBounds(R.drawable.ic_try_again, 0, 0, 0);
+                        uploadImage.setText("Try Again");
+                        output.setVisibility(View.INVISIBLE);
+                        uploadImage.setBackgroundResource(R.drawable.background_error);
                         // change button listener
                         pDialog.hide();
                     }
