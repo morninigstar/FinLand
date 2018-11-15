@@ -4,11 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.MainActivity"
-    android:background="@drawable/background_gradient">
+    android:background="@drawable/background_gradient"
+    tools:context=".ui.MainActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/mainToolbar"
+        android:backgroundTint="@color/colorPrimary"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:titleTextColor="@color/md_white_1000">
@@ -17,71 +18,48 @@
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
-        android:layout_width="match_parent"
-        android:layout_height="180dp"
+        android:layout_width="330dp"
+        android:layout_height="400dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         app:cardBackgroundColor="@color/colorPrimaryDark"
         app:cardCornerRadius="8dp"
         app:cardElevation="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.185">
+        app:layout_constraintVertical_bias="0.39">
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/uploadFromGallery"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_upload" />
-
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="10dp"
-            android:text="Upload from gallery"
-            android:textAlignment="center"
-            android:textColor="@color/secondaryColor"
-            android:textSize="18sp" />
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="15dp" />
+
+            <Button
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:text="upload image"
+                android:id="@+id/uploadImage"
+                android:drawableLeft="@drawable/ic_upload"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
     </androidx.cardview.widget.CardView>
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:layout_marginStart="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginBottom="8dp"
-        app:cardBackgroundColor="@color/colorPrimaryDark"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardView"
-        app:layout_constraintVertical_bias="0.289">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/uploadFromDrive"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:src="@drawable/ic_drive" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginBottom="10dp"
-            android:text="Upload from Google Drive"
-            android:textAlignment="center"
-            android:textColor="@color/secondaryColor"
-            android:textSize="18sp" />
-    </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

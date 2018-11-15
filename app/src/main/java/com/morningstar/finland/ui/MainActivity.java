@@ -12,13 +12,16 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.morningstar.finland.R;
 import com.morningstar.finland.utility.DrawerUtils;
 
@@ -34,7 +37,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private Toolbar toolbar;
-    private FloatingActionButton fromGallery, fromDrive;
+    private Button uploadImage;
+    ImageView image;
+    private Bitmap bitmap;
+
 
     private static final int REQUEST_CODE_GALLERY = 1;
     private static final int EXTERNAL_STORAGE_PERMISSION_CODE = 69;
@@ -51,10 +57,10 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         DrawerUtils.getDrawer(this, toolbar);
 
-        fromGallery = findViewById(R.id.uploadFromGallery);
-        fromDrive = findViewById(R.id.uploadFromDrive);
+        uploadImage = findViewById(R.id.uploadImage);
+        image = findViewById(R.id.image);
 
-        fromGallery.setOnClickListener(new View.OnClickListener() {
+        uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
@@ -62,13 +68,6 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     chooseImageFromGallery();
                 }
-            }
-        });
-
-        fromDrive.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
             }
         });
     }
@@ -80,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_CODE_GALLERY);
     }
 
-    @Override
+    /*@Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
@@ -96,6 +95,21 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (Exception e) {
             Log.i(TAG, "Exception caught while parsing data");
+        }
+    }*/
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_GALLERY && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri filePath = data.getData();
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                image.setImageBitmap(bitmap);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
