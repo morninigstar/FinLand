@@ -13,7 +13,9 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -30,6 +32,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.snackbar.Snackbar;
 import com.morningstar.finland.R;
 import com.morningstar.finland.utility.DrawerUtils;
 
@@ -44,6 +47,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -55,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
     ImageView image;
     private Bitmap bitmap;
     TextView prediction, probability;
+    CardView cardView;
+    CardView output;
+    ConstraintLayout constraintLayout;
 
     private final String URL_POST_IMAGE = "http://192.168.0.101:5000/upload";
     private final int REQUEST_CODE_GALLERY = 1;
@@ -66,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         toolbar = findViewById(R.id.mainToolbar);
-        toolbar.setTitle("Dashboard");
+        toolbar.setTitle("FinLand");
         toolbar.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         DrawerUtils.getDrawer(this, toolbar);
 
@@ -74,6 +82,9 @@ public class MainActivity extends AppCompatActivity {
         image = findViewById(R.id.image);
         prediction = findViewById(R.id.prediction);
         probability = findViewById(R.id.probability);
+        cardView = findViewById(R.id.cardView);
+        output = findViewById(R.id.output);
+        constraintLayout = findViewById(R.id.rootLayout);
 
         uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,35 +137,33 @@ public class MainActivity extends AppCompatActivity {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(MainActivity.this, "hoyeche", Toast.LENGTH_SHORT).show();
                         try {
                             JSONObject jsonResponse = new JSONObject(response);
                             String probab = jsonResponse.getString("probability");
                             String landType = jsonResponse.getString("land-type");
 
-                            Toast.makeText(MainActivity.this, probab + landType, Toast.LENGTH_SHORT).show();
-
-                            prediction.setText(landType);
-                            probability.setText(probab);
-                            uploadImage.setText("Upload Another Image");
+                            if (probab.compareTo("null") == 0) {
+                                showSnackBar();
+                            } else {
+                                prediction.setText(landType);
+                                probability.setText(probab);
+                                uploadImage.setText("Upload New Image");
+                                output.setVisibility(View.VISIBLE);
+                            }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        // update card view with values
-                        // change button to upload another image
                         pDialog.hide();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(MainActivity.this, "error", Toast.LENGTH_SHORT).show();
-                        // change button to try again
-                        // change button listener
+                        output.setVisibility(View.INVISIBLE);
                         pDialog.hide();
+                        showSnackBar();
                     }
-                })
-        {
+                }) {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
@@ -164,6 +173,19 @@ public class MainActivity extends AppCompatActivity {
         };
 
         queue.add(stringRequest);
+    }
+
+    public void showSnackBar() {
+        Snackbar snackbar = Snackbar
+                .make(constraintLayout, "Failed to fetch prediction", Snackbar.LENGTH_LONG)
+                .setAction("RETRY", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        sendRequest();
+                    }
+                })
+                .setActionTextColor(Color.WHITE);
+        snackbar.show();
     }
 
     @Override
