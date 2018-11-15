@@ -9,6 +9,7 @@
 package com.morningstar.finland.ui;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,17 +17,30 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.morningstar.finland.R;
 import com.morningstar.finland.utility.DrawerUtils;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
+import java.util.Map;
+
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -40,13 +54,12 @@ public class MainActivity extends AppCompatActivity {
     private Button uploadImage;
     ImageView image;
     private Bitmap bitmap;
+    TextView prediction, probability;
 
+    private final String URL_POST_IMAGE = "http://192.168.0.101:5000/upload";
+    private final int REQUEST_CODE_GALLERY = 1;
+    private final int EXTERNAL_STORAGE_PERMISSION_CODE = 69;
 
-    private static final int REQUEST_CODE_GALLERY = 1;
-    private static final int EXTERNAL_STORAGE_PERMISSION_CODE = 69;
-
-    private Uri uri;
-    private String file_path;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
 
         uploadImage = findViewById(R.id.uploadImage);
         image = findViewById(R.id.image);
+        prediction = findViewById(R.id.prediction);
+        probability = findViewById(R.id.probability);
 
         uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -79,25 +94,6 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_CODE_GALLERY);
     }
 
-    /*@Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        try {
-            if (resultCode == RESULT_OK) {
-                if (requestCode == REQUEST_CODE_GALLERY) {
-                    if (data != null) {
-                        uri = data.getData();
-                        file_path = uri != null ? uri.getPath() : null;
-                        Log.i(TAG, "Uri: " + uri);
-                        Log.i(TAG, "File Path: " + file_path);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            Log.i(TAG, "Exception caught while parsing data");
-        }
-    }*/
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -107,10 +103,67 @@ public class MainActivity extends AppCompatActivity {
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
                 image.setImageBitmap(bitmap);
+                sendRequest();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void sendRequest() {
+        final ProgressDialog pDialog = new ProgressDialog(this);
+        pDialog.setMessage("Uploading...");
+        pDialog.show();
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] imageBytes = baos.toByteArray();
+        final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_POST_IMAGE,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Toast.makeText(MainActivity.this, "hoyeche", Toast.LENGTH_SHORT).show();
+                        try {
+                            JSONObject jsonResponse = new JSONObject(response);
+                            String probab = jsonResponse.getString("probability");
+                            String landType = jsonResponse.getString("land-type");
+
+                            Toast.makeText(MainActivity.this, probab + landType, Toast.LENGTH_SHORT).show();
+
+                            prediction.setText(landType);
+                            probability.setText(probab);
+                            uploadImage.setText("Upload Another Image");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        // update card view with values
+                        // change button to upload another image
+                        pDialog.hide();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(MainActivity.this, "error", Toast.LENGTH_SHORT).show();
+                        // change button to try again
+                        // change button listener
+                        pDialog.hide();
+                    }
+                })
+        {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("image", imageString);
+                return params;
+            }
+        };
+
+        queue.add(stringRequest);
     }
 
     @Override
