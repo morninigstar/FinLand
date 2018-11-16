@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         DrawerUtils.getDrawer(this, toolbar);
 
         uploadImage = findViewById(R.id.uploadImage);
+        uploadImage.setEnabled(true);
         image = findViewById(R.id.image);
         prediction = findViewById(R.id.prediction);
         probability = findViewById(R.id.probability);
@@ -87,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
         uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                uploadImage.setProgress(1);
                 if (!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
                     requestPermission();
                 } else {
@@ -99,6 +99,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void chooseImageFromGallery() {
         uploadImage.setProgress(1);
+        uploadImage.setText(getString(R.string.please_wait));
+        uploadImage.setEnabled(false);
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
@@ -140,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
                             if (probab.compareTo("null") == 0) {
                                 showSnackBar();
                                 uploadImage.setProgress(-1);
+                                uploadImage.setText("Try Again");
                             } else {
                                 prediction.setText(landType);
                                 probability.setText(probab);
@@ -147,6 +150,8 @@ public class MainActivity extends AppCompatActivity {
                                 output.setVisibility(View.VISIBLE);
                                 uploadImage.setProgress(100);
                             }
+
+                            uploadImage.setEnabled(true);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -157,6 +162,8 @@ public class MainActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         output.setVisibility(View.INVISIBLE);
                         uploadImage.setProgress(-1);
+                        uploadImage.setText("Try Again");
+                        uploadImage.setEnabled(true);
                         showSnackBar();
                     }
                 }) {
