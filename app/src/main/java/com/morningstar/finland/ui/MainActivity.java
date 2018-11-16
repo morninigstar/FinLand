@@ -13,7 +13,6 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -21,7 +20,6 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,6 +30,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.dd.processbutton.iml.ActionProcessButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.morningstar.finland.R;
 import com.morningstar.finland.utility.DrawerUtils;
@@ -56,15 +55,14 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private Toolbar toolbar;
-    private Button uploadImage;
-    ImageView image;
+    private final String URL_POST_IMAGE = "http://192.168.1.104:5000";
+    private ActionProcessButton uploadImage;
     private Bitmap bitmap;
-    TextView prediction, probability;
-    CardView cardView;
-    CardView output;
-    ConstraintLayout constraintLayout;
-
-    private final String URL_POST_IMAGE = "http://192.168.0.101:5000/upload";
+    private ImageView image;
+    private TextView prediction, probability;
+    private CardView cardView;
+    private CardView output;
+    private ConstraintLayout constraintLayout;
     private final int REQUEST_CODE_GALLERY = 1;
     private final int EXTERNAL_STORAGE_PERMISSION_CODE = 69;
 
@@ -86,9 +84,11 @@ public class MainActivity extends AppCompatActivity {
         output = findViewById(R.id.output);
         constraintLayout = findViewById(R.id.rootLayout);
 
+        uploadImage.setMode(ActionProcessButton.Mode.ENDLESS);
         uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                uploadImage.setProgress(1);
                 if (!(ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)) {
                     requestPermission();
                 } else {
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        uploadImage.setProgress(0);
         if (requestCode == REQUEST_CODE_GALLERY && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri filePath = data.getData();
             try {
@@ -149,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
                                 probability.setText(probab);
                                 uploadImage.setText("Upload New Image");
                                 output.setVisibility(View.VISIBLE);
+                                uploadImage.setProgress(1);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -160,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         output.setVisibility(View.INVISIBLE);
+                        uploadImage.setProgress(-1);
                         pDialog.hide();
                         showSnackBar();
                     }

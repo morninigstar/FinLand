@@ -11,7 +11,7 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/mainToolbar"
         android:layout_width="match_parent"
-        android:layout_height="53dp"
+        android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
         app:titleTextColor="@color/md_white_1000">
 
@@ -27,7 +27,6 @@
         android:layout_marginBottom="8dp"
         android:clickable="true"
         android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
         app:cardCornerRadius="8dp"
         app:cardElevation="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -48,7 +47,7 @@
                 android:layout_height="290dp"
                 android:layout_marginTop="15dp" />
 
-            <Button
+            <com.dd.processbutton.iml.ActionProcessButton
                 android:id="@+id/uploadImage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -56,12 +55,11 @@
                 android:layout_marginTop="15dp"
                 android:layout_marginRight="35dp"
                 android:layout_marginBottom="5dp"
-                android:background="@drawable/background_normal"
                 android:drawableStart="@drawable/ic_file_upload"
                 android:elevation="@dimen/material_drawer_item_primary"
                 android:paddingStart="15dp"
-                android:text="upload image"
-                tools:ignore="RtlSymmetry" />
+                android:paddingEnd="15dp"
+                android:text="upload image" />
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
@@ -127,7 +125,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
                 android:gravity="center"
-                android:text="Probability:"
+                android:text="Accuracy: "
                 android:textColor="#101010"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
