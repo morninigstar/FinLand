@@ -9,7 +9,6 @@
 package com.morningstar.finland.ui;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -99,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void chooseImageFromGallery() {
+        uploadImage.setProgress(1);
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
@@ -108,7 +108,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        uploadImage.setProgress(0);
         if (requestCode == REQUEST_CODE_GALLERY && resultCode == RESULT_OK && data != null && data.getData() != null) {
             Uri filePath = data.getData();
             try {
@@ -122,10 +121,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void sendRequest() {
-        final ProgressDialog pDialog = new ProgressDialog(this);
-        pDialog.setMessage("Uploading...");
-        pDialog.show();
-
         RequestQueue queue = Volley.newRequestQueue(this);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -144,17 +139,17 @@ public class MainActivity extends AppCompatActivity {
 
                             if (probab.compareTo("null") == 0) {
                                 showSnackBar();
+                                uploadImage.setProgress(-1);
                             } else {
                                 prediction.setText(landType);
                                 probability.setText(probab);
                                 uploadImage.setText("Upload New Image");
                                 output.setVisibility(View.VISIBLE);
-                                uploadImage.setProgress(1);
+                                uploadImage.setProgress(100);
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        pDialog.hide();
                     }
                 },
                 new Response.ErrorListener() {
@@ -162,7 +157,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onErrorResponse(VolleyError error) {
                         output.setVisibility(View.INVISIBLE);
                         uploadImage.setProgress(-1);
-                        pDialog.hide();
                         showSnackBar();
                     }
                 }) {
