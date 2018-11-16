@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private Toolbar toolbar;
-    private final String URL_POST_IMAGE = "http://192.168.1.104:5000";
+    private final String URL_POST_IMAGE = "http://192.168.0.101:5000/upload";
     private ActionProcessButton uploadImage;
     private Bitmap bitmap;
     private ImageView image;
