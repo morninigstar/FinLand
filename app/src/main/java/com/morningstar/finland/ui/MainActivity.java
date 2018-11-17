@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private ActionProcessButton uploadImage;
     private Bitmap bitmap;
     private ImageView image;
-    private TextView prediction, probability;
+    private TextView prediction, probability, noImage;
     private CardView cardView;
     private CardView output;
     private ConstraintLayout constraintLayout;
@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         probability = findViewById(R.id.probability);
         cardView = findViewById(R.id.cardView);
         output = findViewById(R.id.output);
+        noImage = findViewById(R.id.noImage);
         constraintLayout = findViewById(R.id.rootLayout);
 
         uploadImage.setMode(ActionProcessButton.Mode.ENDLESS);
@@ -111,6 +112,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_GALLERY && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            noImage.setVisibility(View.GONE);
+            image.setVisibility(View.VISIBLE);
             Uri filePath = data.getData();
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);

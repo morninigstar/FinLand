@@ -46,7 +46,18 @@
                 android:id="@+id/image"
                 android:layout_width="290dp"
                 android:layout_height="290dp"
-                android:layout_marginTop="15dp" />
+                android:layout_marginTop="15dp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/noImage"
+                android:layout_width="290dp"
+                android:layout_height="290dp"
+                android:layout_marginTop="15dp"
+                android:gravity="center"
+                android:text="No Image Selected Yet"
+                android:textColor="@android:color/black"
+                android:textSize="18sp" />
 
             <com.dd.processbutton.iml.ActionProcessButton
                 android:id="@+id/uploadImage"
