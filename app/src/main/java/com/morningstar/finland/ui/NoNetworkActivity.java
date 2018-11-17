@@ -6,11 +6,12 @@
  * P.S.: In case you are planning to use this without mentioning me, you will be met with mean judgemental looks and sarcastic comments.
  */
 
-package com.morningstar.finland;
+package com.morningstar.finland.ui;
 
 import android.os.Bundle;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.morningstar.finland.R;
 
 import androidx.appcompat.app.AppCompatActivity;
 

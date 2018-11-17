@@ -6,7 +6,7 @@
  * P.S.: In case you are planning to use this without mentioning me, you will be met with mean judgemental looks and sarcastic comments.
  */
 
-package com.morningstar.finland;
+package com.morningstar.finland.ui;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,7 +19,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.morningstar.finland.ui.MainActivity;
+import com.morningstar.finland.R;
 
 import androidx.appcompat.app.AppCompatActivity;
 
