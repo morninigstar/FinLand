@@ -184,6 +184,7 @@ public class MainActivity extends AppCompatActivity {
                 .setAction("RETRY", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        uploadImage.setProgress(1);
                         sendRequest();
                     }
                 })
