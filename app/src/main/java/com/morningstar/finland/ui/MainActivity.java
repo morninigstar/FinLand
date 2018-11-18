@@ -32,6 +32,7 @@ import com.android.volley.toolbox.Volley;
 import com.dd.processbutton.iml.ActionProcessButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.morningstar.finland.R;
+import com.morningstar.finland.managers.NetworkManager;
 import com.morningstar.finland.utility.DrawerUtils;
 
 import org.json.JSONException;
@@ -111,74 +112,87 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_GALLERY && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            noImage.setVisibility(View.GONE);
-            image.setVisibility(View.VISIBLE);
-            Uri filePath = data.getData();
-            try {
-                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                image.setImageBitmap(bitmap);
-                sendRequest();
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (requestCode == REQUEST_CODE_GALLERY && resultCode == RESULT_OK) {
+            if (data != null && data.getData() != null) {
+                noImage.setVisibility(View.GONE);
+                image.setVisibility(View.VISIBLE);
+                Uri filePath = data.getData();
+                try {
+                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                    image.setImageBitmap(bitmap);
+                    sendRequest();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+        } else {
+            image.setVisibility(View.GONE);
+            noImage.setVisibility(View.VISIBLE);
+            uploadImage.setProgress(0);
+            uploadImage.setEnabled(true);
+            uploadImage.setText("Upload Image");
         }
     }
 
     public void sendRequest() {
-        RequestQueue queue = Volley.newRequestQueue(this);
+        if (NetworkManager.isUserOnline(MainActivity.this)) {
+            RequestQueue queue = Volley.newRequestQueue(this);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] imageBytes = baos.toByteArray();
-        final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            byte[] imageBytes = baos.toByteArray();
+            final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
 
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_POST_IMAGE,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject jsonResponse = new JSONObject(response);
-                            String probab = jsonResponse.getString("probability");
-                            String landType = jsonResponse.getString("land-type");
+            StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_POST_IMAGE,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            try {
+                                JSONObject jsonResponse = new JSONObject(response);
+                                String probab = jsonResponse.getString("probability");
+                                String landType = jsonResponse.getString("land-type");
 
-                            if (probab.compareTo("null") == 0) {
-                                showSnackBar();
-                                uploadImage.setProgress(-1);
-                                uploadImage.setText("Try Again");
-                            } else {
-                                prediction.setText(landType);
-                                probability.setText(probab);
-                                uploadImage.setText("Upload New Image");
-                                output.setVisibility(View.VISIBLE);
-                                uploadImage.setProgress(100);
+                                if (probab.compareTo("null") == 0) {
+                                    showSnackBar();
+                                    uploadImage.setProgress(-1);
+                                    uploadImage.setText("Try Again");
+                                } else {
+                                    prediction.setText(landType);
+                                    probability.setText(probab);
+                                    uploadImage.setText("Upload New Image");
+                                    output.setVisibility(View.VISIBLE);
+                                    uploadImage.setProgress(100);
+                                }
+
+                                uploadImage.setEnabled(true);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-
-                            uploadImage.setEnabled(true);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        output.setVisibility(View.INVISIBLE);
-                        uploadImage.setProgress(-1);
-                        uploadImage.setText("Try Again");
-                        uploadImage.setEnabled(true);
-                        showSnackBar();
-                    }
-                }) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                params.put("image", imageString);
-                return params;
-            }
-        };
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            output.setVisibility(View.INVISIBLE);
+                            uploadImage.setProgress(-1);
+                            uploadImage.setText("Try Again");
+                            uploadImage.setEnabled(true);
+                            showSnackBar();
+                        }
+                    }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    Map<String, String> params = new HashMap<>();
+                    params.put("image", imageString);
+                    return params;
+                }
+            };
 
-        queue.add(stringRequest);
+            queue.add(stringRequest);
+        } else {
+            Intent intent = new Intent(MainActivity.this, NoNetworkActivity.class);
+            startActivity(intent);
+        }
     }
 
     public void showSnackBar() {
@@ -188,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View view) {
                         uploadImage.setProgress(1);
+                        uploadImage.setText(R.string.please_wait);
                         sendRequest();
                     }
                 })
