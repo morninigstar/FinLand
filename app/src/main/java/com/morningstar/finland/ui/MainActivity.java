@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
             noImage.setVisibility(View.VISIBLE);
             uploadImage.setProgress(0);
             uploadImage.setEnabled(true);
-            uploadImage.setText("Upload Image");
+//            uploadImage.setText("Upload Image");
         }
     }
 
