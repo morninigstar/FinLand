@@ -7,5 +7,5 @@
   -->
 
 <resources>
-    <dimen name="material_drawer_item_primary_text">16sp</dimen>
+    <dimen name="material_drawer_item_primary_text">18sp</dimen>
 </resources>

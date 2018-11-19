@@ -33,7 +33,7 @@ public class TutorialActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tutorial);
 
         toolbar = findViewById(R.id.tutorialToolbar);
-        toolbar.setTitle("About Us");
+        toolbar.setTitle("Walkthrough");
         setSupportActionBar(toolbar);
 
         DrawerUtils.getDrawer(TutorialActivity.this, toolbar);
