@@ -1,5 +1,6 @@
 # FinLand
-An app that lets the user upload satellite images of land from his phone or google drive and uses ML to predict what type of land it is
+An app that lets the user upload satellite images of land from his phone or google drive and uses ML to predict what type of land it is.  
+Demo [video](https://www.youtube.com/watch?v=siKAWgfdLWg&feature=youtu.be)
 
 ## Setup
 Go to [this](https://github.com/diptangsu/FinLand-API) repository and set up a `Flask` web server in your local machine.
