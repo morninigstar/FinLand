@@ -13,11 +13,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,6 +35,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.dd.processbutton.iml.ActionProcessButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.morningstar.finland.R;
 import com.morningstar.finland.managers.NetworkManager;
@@ -39,6 +45,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,16 +64,22 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private Toolbar toolbar;
-    private final String URL_POST_IMAGE = "http://192.168.0.101:5000/upload";
+    private final String URL_POST_IMAGE = "http://3.16.162.206:5000/upload";
     private ActionProcessButton uploadImage;
     private Bitmap bitmap;
     private ImageView image;
     private TextView prediction, probability, noImage;
     private CardView cardView;
     private CardView output;
+    private FloatingActionButton savePdf;
     private ConstraintLayout constraintLayout;
+
     private final int REQUEST_CODE_GALLERY = 1;
     private final int EXTERNAL_STORAGE_PERMISSION_CODE = 69;
+    private File DOWNLOADS_FOLDER_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    private String SAVE_FILE_PATH;
+    private String SAVE_FOLDER_NAME = "Finland";
+    private String SAVE_FILE_NAME;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +100,8 @@ public class MainActivity extends AppCompatActivity {
         output = findViewById(R.id.output);
         noImage = findViewById(R.id.noImage);
         constraintLayout = findViewById(R.id.rootLayout);
-
+//        savePdf = findViewById(R.id.saveAsPdf);
+//        savePdf.hide();
         uploadImage.setMode(ActionProcessButton.Mode.ENDLESS);
         uploadImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,7 +153,6 @@ public class MainActivity extends AppCompatActivity {
     public void sendRequest() {
         if (NetworkManager.isUserOnline(MainActivity.this)) {
             RequestQueue queue = Volley.newRequestQueue(this);
-
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             byte[] imageBytes = baos.toByteArray();
@@ -177,6 +192,13 @@ public class MainActivity extends AppCompatActivity {
                             uploadImage.setProgress(-1);
                             uploadImage.setText("Try Again");
                             uploadImage.setEnabled(true);
+//                            savePdf.show();
+                            savePdf.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    saveAsPDF();
+                                }
+                            });
                             showSnackBar();
                         }
                     }) {
@@ -193,6 +215,40 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, NoNetworkActivity.class);
             startActivity(intent);
         }
+    }
+
+    private void saveAsPDF() {
+        PdfDocument pdfDocument = new PdfDocument();
+        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(bitmap.getWidth(), bitmap.getHeight(), 1)
+                .create();
+        PdfDocument.Page page = pdfDocument.startPage(pageInfo);
+
+        Canvas canvas = page.getCanvas();
+        Paint paint = new Paint();
+        paint.setColor(Color.parseColor("#FFFFFF"));
+        canvas.drawPaint(paint);
+
+        Bitmap b = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth(), bitmap.getHeight(), true);
+        paint.setColor(Color.BLUE);
+        canvas.drawBitmap(b, 0, 0, null);
+        pdfDocument.finishPage(page);
+
+        SAVE_FILE_PATH = DOWNLOADS_FOLDER_PATH + "/" + SAVE_FOLDER_NAME;
+//        File root = new File(SAVE_FILE_PATH, "FinLand");
+//        if (!root.exists()){
+//            root.mkdirs();
+//        }
+
+        File file = new File(SAVE_FILE_PATH, "result.pdf");
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            pdfDocument.writeTo(fileOutputStream);
+        } catch (IOException e) {
+            Log.i(TAG, "Exception: " + e.getMessage());
+        }
+
+        pdfDocument.close();
+        Toast.makeText(this, "Saved!", Toast.LENGTH_SHORT).show();
     }
 
     public void showSnackBar() {

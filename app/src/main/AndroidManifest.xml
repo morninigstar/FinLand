@@ -25,6 +25,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.NoNetworkActivity" />
+        <activity android:name=".ui.TutorialActivity" />
+        <activity android:name=".ui.AboutUs"></activity>
     </application>
 
 </manifest>
