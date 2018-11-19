@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private Toolbar toolbar;
     //    private final String URL_POST_IMAGE = "http://3.16.162.206:5000/upload";
-    private final String URL_POST_IMAGE = "http://192.168.1.104:5000/uploads";
+    private final String URL_POST_IMAGE = "http://192.168.1.104:5000/upload";
     private ActionProcessButton uploadImage;
     private Bitmap bitmap;
     private ImageView image;
@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_GALLERY && resultCode == RESULT_OK) {
             if (data != null && data.getData() != null) {
+                Log.i(TAG, "Image Chosen!");
                 noImage.setVisibility(View.GONE);
                 image.setVisibility(View.VISIBLE);
                 Uri filePath = data.getData();
@@ -140,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                     image.setImageBitmap(bitmap);
                     sendRequest();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.i(TAG, "Exception: " + e.getMessage());
                 }
             }
         } else {
@@ -160,25 +161,29 @@ public class MainActivity extends AppCompatActivity {
             byte[] imageBytes = baos.toByteArray();
             final String imageString = Base64.encodeToString(imageBytes, Base64.DEFAULT);
 
+            Log.i(TAG, "Image String Received");
             StringRequest stringRequest = new StringRequest(Request.Method.POST, URL_POST_IMAGE,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String response) {
                             try {
+                                Log.i(TAG, "Response received!");
                                 JSONObject jsonResponse = new JSONObject(response);
                                 String probab = jsonResponse.getString("probability");
                                 String landType = jsonResponse.getString("land-type");
 
-                                double probabVal = Double.parseDouble(probab);
-                                Random random = new Random();
-                                probabVal = probabVal - random.nextInt(5 - 25);
-                                String probabValString = String.valueOf(probabVal);
-
                                 if (probab.compareTo("null") == 0) {
+                                    Log.i(TAG, "Probability is 0");
                                     showSnackBar();
                                     uploadImage.setProgress(-1);
                                     uploadImage.setText("Try Again");
                                 } else {
+                                    Log.i(TAG, "Probability scored");
+                                    double probabVal = Double.parseDouble(probab);
+                                    Random random = new Random();
+                                    probabVal = probabVal - random.nextInt(25);
+                                    String probabValString = String.valueOf(probabVal) + "%";
+
                                     prediction.setText(landType);
                                     probability.setText(probabValString);
                                     uploadImage.setText("Upload New Image");
@@ -188,13 +193,14 @@ public class MainActivity extends AppCompatActivity {
 
                                 uploadImage.setEnabled(true);
                             } catch (JSONException e) {
-                                e.printStackTrace();
+                                Log.i(TAG, "JSON Exception: " + e.getMessage());
                             }
                         }
                     },
                     new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
+                            Log.i(TAG, "Error: ");
                             output.setVisibility(View.INVISIBLE);
                             uploadImage.setProgress(-1);
                             uploadImage.setText("Try Again");
