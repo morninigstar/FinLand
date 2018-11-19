@@ -118,13 +118,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void chooseImageFromGallery() {
-        uploadImage.setProgress(1);
-        uploadImage.setText(getString(R.string.please_wait));
-        uploadImage.setEnabled(false);
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("image/*");
-        startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_CODE_GALLERY);
+        if (NetworkManager.isUserOnline(MainActivity.this)) {
+            uploadImage.setProgress(1);
+            uploadImage.setText(getString(R.string.please_wait));
+            uploadImage.setEnabled(false);
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/*");
+            startActivityForResult(Intent.createChooser(intent, "Select Image"), REQUEST_CODE_GALLERY);
+        } else {
+            image.setVisibility(View.GONE);
+            noImage.setVisibility(View.VISIBLE);
+            uploadImage.setProgress(0);
+            uploadImage.setEnabled(true);
+            output.setVisibility(View.GONE);
+            uploadImage.setText("Upload Image");
+            Intent intent = new Intent(MainActivity.this, NoNetworkActivity.class);
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -149,12 +160,12 @@ public class MainActivity extends AppCompatActivity {
             noImage.setVisibility(View.VISIBLE);
             uploadImage.setProgress(0);
             uploadImage.setEnabled(true);
+            output.setVisibility(View.GONE);
             uploadImage.setText("Upload Image");
         }
     }
 
     public void sendRequest() {
-        if (NetworkManager.isUserOnline(MainActivity.this)) {
             RequestQueue queue = Volley.newRequestQueue(this);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -184,10 +195,10 @@ public class MainActivity extends AppCompatActivity {
                                     probabVal = probabVal - random.nextInt(25);
                                     String probabValString = String.valueOf(probabVal) + "%";
 
+                                    output.setVisibility(View.VISIBLE);
                                     prediction.setText(landType);
                                     probability.setText(probabValString);
                                     uploadImage.setText("Upload New Image");
-                                    output.setVisibility(View.VISIBLE);
                                     uploadImage.setProgress(100);
                                 }
 
@@ -224,10 +235,6 @@ public class MainActivity extends AppCompatActivity {
             };
 
             queue.add(stringRequest);
-        } else {
-            Intent intent = new Intent(MainActivity.this, NoNetworkActivity.class);
-            startActivity(intent);
-        }
     }
 
     private void saveAsPDF() {
@@ -265,6 +272,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void showSnackBar() {
+        output.setVisibility(View.GONE);
+        prediction.setText("");
+        probability.setText("");
         Snackbar snackbar = Snackbar
                 .make(constraintLayout, "Failed to fetch prediction", Snackbar.LENGTH_LONG)
                 .setAction("RETRY", new View.OnClickListener() {
